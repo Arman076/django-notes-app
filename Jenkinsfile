@@ -140,7 +140,7 @@ pipeline {
                 echo "Application deployed successfully to Kubernetes."
                 
                 
-                sh "docker-compose up -d"
+                sh "docker-compose down && docker-compose up -d"
                 echo "Application deployed successfully."
             }
         }
