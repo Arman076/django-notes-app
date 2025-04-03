@@ -114,6 +114,7 @@ pipeline {
                         <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
                         <p><strong>Build Status:</strong> ${currentBuild.result ?: 'SUCCESS'}</p>
                         <p>Check logs at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                attachLog: true,
                 mimeType: 'text/html'
             )
         }
@@ -126,6 +127,7 @@ pipeline {
                         <p>Job Name: ${env.JOB_NAME}</p>
                         <p>Build Number: ${env.BUILD_NUMBER}</p>
                         <p>Check logs at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+                attachLog: true,
                 mimeType: 'text/html'
             )
         }
