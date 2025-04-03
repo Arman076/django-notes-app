@@ -6,7 +6,7 @@ pipeline {
         IMAGE_NAME = "django-notes-app:latest"
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
-        KUBE_CONFIG= '/root/.kube/config'
+        // KUBE_CONFIG= '/root/.kube/config'
     }
 
     stages {
@@ -33,7 +33,6 @@ pipeline {
         
         stage("Build the Code") {
             
-            
             steps {
                 echo "Building the Docker image..."
                 
@@ -45,9 +44,6 @@ pipeline {
                 echo "Docker image built successfully."
             }
         }
-        
-        
-        
         
         stage("Install Docker & Docker Compose if Missing") {
             steps {
@@ -90,15 +86,10 @@ pipeline {
                     docker --version
                     docker-compose --version
                     
-                    
-                    
                 '''
             }
         }
-        
-        
-        
-        
+ 
         stage("Push Code to Docker Hub") {
             steps {
                 echo "Pushing the image to Docker Hub..."
@@ -130,8 +121,7 @@ pipeline {
         stage("Deploy the Code") {
             steps {
                 echo "Deploying the application..."
-                sh "docker-compose down || true"  // Stop existing container if running
-                
+                sh "docker-compose down || true"  // Stop existing container if running 
                 echo "running the kubernetes"
                 // sh "kubectl apply -f k8s/deployment.yaml"
 
@@ -139,28 +129,12 @@ pipeline {
                 // sh "kubectl rollout status deployment django-notes -n django"
                 echo "Application deployed successfully to Kubernetes."
                 
-                
                 sh "docker-compose down && docker-compose up -d"
                 echo "Application deployed successfully."
             }
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
