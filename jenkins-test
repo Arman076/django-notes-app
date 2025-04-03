@@ -1,3 +1,17 @@
+
+
+
+1. clone the github repository
+2. create the docker file and necessary dependency
+
+3. create agent (means another machine using here ) that ip put and master private(public  confusion there copy it) and put the jenkins that all things perform system inside jenkins are there 
+
+jenkins>manage jenkins> nodes > put name of the agent(whatever) > set the remote directory where your jenkins project store > put that host ip and master private key> 
+
+A Jenkins Shared Library is a way to store and reuse Groovy scripts across multiple Jenkins pipelines. It allows you to avoid code duplication and maintain common pipeline logic in a central place.
+
+
+
 // pipeline {
 //     agent { label 'aws' }  // Make sure 'aws' agent is available
 
@@ -110,7 +124,7 @@ pipeline {
         IMAGE_NAME = "django-notes-app:latest"
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
-        KUBE_CONFIG= '/root/.kube/config'
+        KUBE_CONFIG= '/root/.kube/config'    #calling the variable environment $KUBE_CONFIG like this
     }
 
     stages {
@@ -142,8 +156,8 @@ pipeline {
                 echo "Building the Docker image..."
                 
                 script {
-                    docker_build("django-notes-app","latest","devil678")
-                }
+                    docker_build("django-notes-app","latest","devil678")  #docker build that taken image name tag and username that we define already in the docker_build.groovy file that linked with him
+                }  you can visiit https://github.com/Arman076/jenkins-shared-libraries  inside var folder are there that  inside groovy files are there
                 
                 // sh "docker build -t $IMAGE_NAME ."
                 echo "Docker image built successfully."
