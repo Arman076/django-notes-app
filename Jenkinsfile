@@ -1,7 +1,7 @@
 @Library("Shared") _   
 pipeline {
-    agent { label 'aws' }  
-
+    // agent { label 'aws' }  
+agent any
     environment {
         IMAGE_NAME = "django-notes-app:latest"
         CONTAINER_NAME = "django-notes-app-container"
