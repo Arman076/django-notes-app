@@ -16,6 +16,14 @@ agent any
                 }
             }
         }
+
+        stage("Cleanup WorkSpace") {
+            steps {
+                script {
+                cleanWs()
+                }
+            }
+        }
         
         stage("Cloning Django Notes App") {
             steps {
