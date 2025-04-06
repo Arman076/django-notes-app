@@ -75,8 +75,8 @@ agent any
                         # mv kubectl /usr/local/bin/
                     # fi
 
-                    minikube start --driver=docker --force
-                    minikube status
+         #           minikube start --driver=docker --force
+          #          minikube status
                 '''
             }
         }
