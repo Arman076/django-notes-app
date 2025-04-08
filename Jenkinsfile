@@ -102,10 +102,41 @@ agent any
                 echo "Deploying the application..."
                 sh "docker-compose down || true"
                 echo "Running Kubernetes Deployment..."
+                
                 // sh "kubectl apply -f k8s/deployment.yaml"
                 echo "Verifying Deployment..."
                 // sh "kubectl rollout status deployment django-notes -n django"
                 echo "Application deployed successfully to Kubernetes."
+                
+                sh '''
+                echo "Applying Kubernetes manifests..."
+                kubectl apply -f k8s/django-ns.yaml
+                kubectl apply -f k8s/mysql-namespace.yaml
+                kubectl apply -f k8s/mysql-pvc.yaml
+                kubectl apply -f k8s/mysql-deployment.yaml
+
+                kubectl apply -f k8s/django-configmap.yaml
+                kubectl apply -f k8s/django-secrets.yaml
+                kubectl apply -f k8s/django-deployment.yaml
+                kubectl apply -f k8s/django-service.yaml
+
+                kubectl apply -f k8s/nginx-configmap.yaml
+                kubectl apply -f k8s/nginx.yaml
+                kubectl apply -f k8s/nginx-service.yaml
+
+                echo "Deploying HPA..."
+                kubectl apply -f k8s/hpa.yaml
+
+                echo "Verifying deployments..."
+                kubectl rollout status deployment/django -n django
+                kubectl rollout status deployment/nginx -n django
+
+                echo "Application and HPA deployed successfully."
+            '''
+
+                
+                
+                
                 sh "docker-compose down && docker-compose up -d"
                 echo "Application deployed successfully."
             }
