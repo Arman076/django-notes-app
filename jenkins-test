@@ -7,7 +7,7 @@ this is our repository
 jenkins>manage jenkins> nodes > put name of the agent(whatever) > set the remote directory where your jenkins project store > put that host ip and master private key> 
 
 A Jenkins Shared Library is a way to store and reuse Groovy scripts across multiple Jenkins pipelines. It allows you to avoid code duplication and maintain common pipeline logic in a central place.
-
+hsjdhdh
 
 
 // pipeline {
