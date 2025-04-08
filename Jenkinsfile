@@ -116,7 +116,7 @@ agent any
                 kubectl apply -f k8s/mysql-deployment.yaml
 
                 kubectl apply -f k8s/django-configmap.yaml
-                kubectl apply -f k8s/django-secrets.yaml
+                kubectl apply -f k8s/django-secretss.yaml
                 kubectl apply -f k8s/django-deployment.yaml
                 kubectl apply -f k8s/django-service.yaml
 
