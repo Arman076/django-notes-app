@@ -79,6 +79,8 @@ pipeline {
                     kubectl apply -f k8s/django-ns.yaml
                     kubectl apply -f k8s/mysql-namespace.yaml
                     kubectl apply -f k8s/mysql-pvc.yaml
+                    kubectl apply -f k8s/django-secrets.yaml
+                    kubectl apply -f k8s/service.yaml
                     kubectl apply -f k8s/mysql-deployment.yaml
 
                     kubectl apply -f k8s/django-configmap.yaml
@@ -90,7 +92,7 @@ pipeline {
                     kubectl apply -f k8s/nginx.yaml
                     kubectl apply -f k8s/nginx-service.yaml
 
-                    kubectl apply -f k8s/hpa.yaml
+                    kubectl apply -f k8s/django-hpa.yaml
 
                     kubectl rollout status deployment/django -n django
                     kubectl rollout status deployment/nginx -n django
