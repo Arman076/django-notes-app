@@ -96,6 +96,11 @@ pipeline {
 
                     kubectl rollout status deployment/django -n django
                     kubectl rollout status deployment/nginx -n django
+
+                    echo "Django service URL:"
+                   minikube service django -n django --url
+            
+                    
                     '''
                 }
             }
