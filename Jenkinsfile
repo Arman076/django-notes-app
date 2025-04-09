@@ -1,15 +1,16 @@
 @Library("Shared") _   
 pipeline {
-    // agent { label 'aws' }  
-agent any
+    agent any
+
     environment {
         IMAGE_NAME = "django-notes-app:latest"
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
+        KUBECONFIG = "/var/lib/jenkins/.kube/config"  // Add this line
     }
 
     stages {
-        stage("hello world") {
+        stage("Hello World") {
             steps {
                 script {
                     hello()
@@ -19,126 +20,82 @@ agent any
 
         stage("Cleanup WorkSpace") {
             steps {
-                script {
                 cleanWs()
-                }
             }
         }
         
         stage("Cloning Django Notes App") {
             steps {
                 script {
-                    clone ("https://github.com/Arman076/django-notes-app.git", "main")  
+                    clone("https://github.com/Arman076/django-notes-app.git", "main")
                 }
             }
         }
-        
+
         stage("Build the Code") {
             steps {
-                echo "Building the Docker image..."
                 script {
-                    docker_build("django-notes-app","latest","devil678")
+                    docker_build("django-notes-app", "latest", "devil678")
                 }
-                echo "Docker image built successfully."
             }
         }
-        
+
         stage("Install Docker & Kubernetes Tools") {
             steps {
-                echo "Installing dependencies if necessary..."
                 sh '''
                     if ! command -v docker &> /dev/null; then
-                        echo "Installing Docker..."
                         sudo apt-get update
                         sudo apt-get install -y docker.io
-                        sudo systemctl start docker
-                        sudo systemctl enable docker
                     fi
 
-                    # if ! command -v minikube &> /dev/null; then
-                        # echo "Installing Minikube..."
-                    # curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
-                        # chmod +x minikube-linux-amd64
-                        # mv minikube-linux-amd64 /usr/local/bin/minikube
-                    # fi
-
                     if ! command -v docker-compose &> /dev/null; then
-                        echo "Installing Docker Compose..."
                         sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
                         sudo chmod +x /usr/local/bin/docker-compose
                     fi
-                    
-                    # if ! command -v kubectl &> /dev/null; then
-                        # echo "Installing kubectl..."
-                        # curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
-                        # chmod +x kubectl
-                        # mv kubectl /usr/local/bin/
-                    # fi
-
-         #           minikube start --driver=docker --force
-          #          minikube status
                 '''
             }
         }
- 
+
         stage("Push Code to Docker Hub") {
             steps {
-                echo "Pushing the image to Docker Hub..."
                 script {
-                    docker_push ("django-notes-app","latest","devil678")
+                    docker_push("django-notes-app", "latest", "devil678")
                 }
             }
         }
-        
+
         stage("Test the Code") {
             steps {
                 echo "Running Django Tests..."
-                echo "Code testing completed successfully."
             }
         }
 
         stage("Deploy the Code") {
             steps {
-                echo "Deploying the application..."
-                sh "docker-compose down || true"
-                echo "Running Kubernetes Deployment..."
-                
-                // sh "kubectl apply -f k8s/deployment.yaml"
-                echo "Verifying Deployment..."
-                // sh "kubectl rollout status deployment django-notes -n django"
-                echo "Application deployed successfully to Kubernetes."
-                
-                sh '''
-                echo "Applying Kubernetes manifests..."
-                kubectl apply -f k8s/django-ns.yaml
-                kubectl apply -f k8s/mysql-namespace.yaml
-                kubectl apply -f k8s/mysql-pvc.yaml
-                kubectl apply -f k8s/mysql-deployment.yaml
+                script {
+                    sh '''
+                    echo "Deploying to Kubernetes..."
 
-                kubectl apply -f k8s/django-configmap.yaml
-                kubectl apply -f k8s/django-secretss.yaml
-                kubectl apply -f k8s/django-deployment.yaml
-                kubectl apply -f k8s/django-service.yaml
+                    kubectl apply -f k8s/django-ns.yaml
+                    kubectl apply -f k8s/mysql-namespace.yaml
+                    kubectl apply -f k8s/mysql-pvc.yaml
+                    kubectl apply -f k8s/mysql-deployment.yaml
 
-                kubectl apply -f k8s/nginx-configmap.yaml
-                kubectl apply -f k8s/nginx.yaml
-                kubectl apply -f k8s/nginx-service.yaml
+                    kubectl apply -f k8s/django-configmap.yaml
+                    kubectl apply -f k8s/django-secretss.yaml
+                    kubectl apply -f k8s/django-deployment.yaml
+                    kubectl apply -f k8s/django-service.yaml
 
-                echo "Deploying HPA..."
-                kubectl apply -f k8s/hpa.yaml
+                    kubectl apply -f k8s/nginx-configmap.yaml
+                    kubectl apply -f k8s/nginx.yaml
+                    kubectl apply -f k8s/nginx-service.yaml
 
-                echo "Verifying deployments..."
-                kubectl rollout status deployment/django -n django
-                kubectl rollout status deployment/nginx -n django
+                    kubectl apply -f k8s/hpa.yaml
 
-                echo "Application and HPA deployed successfully."
-            '''
-
-                
-                
-                
-                sh "docker-compose down && docker-compose up -d"
-                echo "Application deployed successfully."
+                    kubectl rollout status deployment/django -n django
+                    kubectl rollout status deployment/nginx -n django
+                    '''
+                }
             }
         }
     }
@@ -157,7 +114,7 @@ agent any
                 mimeType: 'text/html'
             )
         }
-        
+
         failure {
             emailext (
                 to: "anjaraalam3597@gmail.com",
