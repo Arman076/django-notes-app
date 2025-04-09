@@ -74,6 +74,12 @@ pipeline {
             steps {
                 script {
                     sh '''
+
+                    echo  "Minikube container is started..."
+                    minikube start
+
+                    
+                    
                     echo "Deploying to Kubernetes..."
 
                     kubectl apply -f k8s/django-ns.yaml
