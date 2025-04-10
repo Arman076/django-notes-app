@@ -6,7 +6,7 @@ pipeline {
         IMAGE_NAME = "django-notes-app:latest"
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
-        KUBECONFIG = "/var/lib/jenkins/.kube/config"  // Add this line
+        KUBECONFIG = "/var/lib/jenkins/.kube/config" 
         SONAR_TOKEN = credentials('sonar-token')
         SONAR_PROJECT_KEY = "django-notes-app"
         
