@@ -40,6 +40,15 @@ pipeline {
             }
         }
 
+        stage("Trivy Scan") {
+            steps {
+                sh '''
+                echo "Running Trivy vulnerability scan..."
+                trivy image --exit-code 0 --severity CRITICAL,HIGH devil678/django-notes-app:latest
+                '''
+            }
+        }
+
         stage("Install Docker & Kubernetes Tools") {
             steps {
                 sh '''
