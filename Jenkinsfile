@@ -28,7 +28,7 @@ pipeline {
         
        stage("Sonarqube Analysis") {
     steps {
-        withSonarQubeEnv('sonar-server') {
+        withSonarQubeEnv('sonarserver') {
             withCredentials([string(credentialsId: 'django-sonar-token', variable: 'SONAR_TOKEN')]) {
                 sh '''${SCANNER_HOME}/bin/sonar-scanner \
                   -Dsonar.projectKey=django-notes-app \
