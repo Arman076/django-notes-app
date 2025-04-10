@@ -144,31 +144,22 @@ pipeline {
     }
 
     post {
-        always {
-            emailext (
-                to: "anjaraalam3597@gmail.com",
-                subject: "Jenkins Build: ${currentBuild.fullDisplayName}",
-                body: """<p><strong>Jenkins Build Report</strong></p>
-                        <p><strong>Job Name:</strong> ${env.JOB_NAME}</p>
-                        <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
-                        <p><strong>Build Status:</strong> ${currentBuild.result ?: 'SUCCESS'}</p>
-                        <p>Check logs at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
-                attachLog: true,
-                mimeType: 'text/html'
-            )
-        }
-
-        failure {
-            emailext (
-                to: "anjaraalam3597@gmail.com",
-                subject: "Jenkins Build Failed: ${currentBuild.fullDisplayName}",
-                body: """<p><strong>Build Failed!</strong></p>
-                        <p>Job Name: ${env.JOB_NAME}</p>
-                        <p>Build Number: ${env.BUILD_NUMBER}</p>
-                        <p>Check logs at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
-                attachLog: true,
-                mimeType: 'text/html'
-            )
-        }
+    always {
+        emailext (
+            to: "anjaraalam3597@gmail.com",
+            subject: "Jenkins Build: ${currentBuild.fullDisplayName}",
+            body: """<p><strong>Jenkins Build Report</strong></p>
+                    <p><strong>Job Name:</strong> ${env.JOB_NAME}</p>
+                    <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
+                    <p><strong>Build Status:</strong> ${currentBuild.result ?: 'SUCCESS'}</p>
+                    <p><strong>SonarQube Report:</strong> <a href="${env.SONAR_LINK}">${env.SONAR_LINK}</a></p>
+                    <p>Check logs at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
+            attachmentsPattern: 'trivy-report.txt',
+            attachLog: true,
+            mimeType: 'text/html'
+        )
+    }
     }
 }
+
+
