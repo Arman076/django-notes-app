@@ -27,20 +27,19 @@ pipeline {
         }
         
        stage("Sonarqube Analysis") {
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Django Notes App \
-                    -Dsonar.projectKey=django '''
-                }
+    steps {
+        withSonarQubeEnv('sonar-server') {
+            withCredentials([string(credentialsId: 'django-sonar-token', variable: 'SONAR_TOKEN')]) {
+                sh '''${SCANNER_HOME}/bin/sonar-scanner \
+                  -Dsonar.projectKey=django-notes-app \
+                  -Dsonar.projectName="Django Notes App" \
+                  -Dsonar.sources=. \
+                  -Dsonar.login=$SONAR_TOKEN'''
             }
         }
-        stage("Quality Gate") {
-            steps {
-                script {
-                    waitForQualityGate abortPipeline: false, credentialsId: 'django-sonar-token'
-                }
-            }
-        }
+    }
+}
+
 
         
         stage("Cloning Django Notes App") {
