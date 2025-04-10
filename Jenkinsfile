@@ -147,7 +147,7 @@ pipeline {
     always {
         emailext (
             to: "anjaraalam3597@gmail.com",
-            subject: "Jenkins Build: ${currentBuild.fullDisplayName}",
+            subject: "<b><h1>Jenkins Build: ${currentBuild.fullDisplayName}</h1></b>",
             body: """<p><strong>Jenkins Build Report</strong></p>
                     <p><strong>Job Name:</strong> ${env.JOB_NAME}</p>
                     <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
