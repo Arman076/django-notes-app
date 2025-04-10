@@ -70,46 +70,50 @@ pipeline {
             }
         }
 
-        stage("Deploy the Code") {
-            steps {
-                script {
-                    sh '''
+       stage("Deploy the Code") {
+    steps {
+        script {
+            sh '''
+            echo "Checking Minikube status..."
+            if ! minikube status | grep -q "host: Running"; then
+                echo "Starting Minikube..."
+                minikube start
+            else
+                echo "Minikube is already running."
+            fi
 
-                    echo  "Minikube container is started..."
-                    minikube start
+            echo "Deploying to Kubernetes..."
 
-                    
-                    
-                    echo "Deploying to Kubernetes..."
+            kubectl apply -f k8s/django-ns.yaml
+            kubectl apply -f k8s/mysql-namespace.yaml
+            kubectl apply -f k8s/mysql-pvc.yaml
+            kubectl apply -f k8s/django-secrets.yaml
+            kubectl apply -f k8s/service.yaml
+            kubectl apply -f k8s/mysql-deployment.yaml
 
-                    kubectl apply -f k8s/django-ns.yaml
-                    kubectl apply -f k8s/mysql-namespace.yaml
-                    kubectl apply -f k8s/mysql-pvc.yaml
-                    kubectl apply -f k8s/django-secrets.yaml
-                    kubectl apply -f k8s/service.yaml
-                    kubectl apply -f k8s/mysql-deployment.yaml
+            kubectl apply -f k8s/django-configmap.yaml
+            kubectl apply -f k8s/django-secretss.yaml
+            kubectl apply -f k8s/django-deployment.yaml
+            kubectl apply -f k8s/django-service.yaml
 
-                    kubectl apply -f k8s/django-configmap.yaml
-                    kubectl apply -f k8s/django-secretss.yaml
-                    kubectl apply -f k8s/django-deployment.yaml
-                    kubectl apply -f k8s/django-service.yaml
+            kubectl apply -f k8s/nginx-configmap.yaml
+            kubectl apply -f k8s/nginx.yaml
+            kubectl apply -f k8s/nginx-service.yaml
 
-                    kubectl apply -f k8s/nginx-configmap.yaml
-                    kubectl apply -f k8s/nginx.yaml
-                    kubectl apply -f k8s/nginx-service.yaml
+            kubectl apply -f k8s/django-hpa.yaml
 
-                    kubectl apply -f k8s/django-hpa.yaml
+            echo "Getting Django service URL..."
+            MINIKUBE_IP=$(minikube ip)
+            PORT=$(kubectl get svc djangoservice -n django -o jsonpath="{.spec.ports[0].nodePort}")
+            echo "Django App is available at: http://$MINIKUBE_IP:$PORT"
 
-                    
-
-                    echo "Django service URL:"
-                   minikube service django -n django --url
-            
-                    
-                    '''
-                }
-            }
+            NGINX_PORT=$(kubectl get svc nginx -n django -o jsonpath="{.spec.ports[0].nodePort}")
+            echo "NGINX is available at: http://$MINIKUBE_IP:$NGINX_PORT"
+            '''
         }
+    }
+}
+
     }
 
     post {
