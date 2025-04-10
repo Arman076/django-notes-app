@@ -7,8 +7,7 @@ pipeline {
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
         KUBECONFIG = "/var/lib/jenkins/.kube/config" 
-        SONAR_TOKEN = credentials('django-sonar-token')
-        SONAR_PROJECT_KEY = "django-notes-app"
+        SCANNER_HOME = tool 'sonar-scanner'
         
     }
 
@@ -27,19 +26,21 @@ pipeline {
             }
         }
         
-       stage("SonarQube Code Quality Analysis") {
-    steps {
-        withSonarQubeEnv('SonarQube') {
-            sh '''
-            sonar-scanner \
-              -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-              -Dsonar.sources=. \
-              -Dsonar.host.url=$SONAR_HOST_URL \
-              -Dsonar.login=$SONAR_TOKEN
-            '''
+       stage("Sonarqube Analysis") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    sh ''' $SCANNER_HOME/bin/sonar-scanner -Dsonar.projectName=Django Notes App \
+                    -Dsonar.projectKey=django '''
+                }
+            }
         }
-    }
-}
+        stage("Quality Gate") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'django-sonar-token'
+                }
+            }
+        }
 
         
         stage("Cloning Django Notes App") {
@@ -152,7 +153,6 @@ pipeline {
                     <p><strong>Job Name:</strong> ${env.JOB_NAME}</p>
                     <p><strong>Build Number:</strong> ${env.BUILD_NUMBER}</p>
                     <p><strong>Build Status:</strong> ${currentBuild.result ?: 'SUCCESS'}</p>
-                    <p><strong>SonarQube Report:</strong> <a href="${env.SONAR_LINK}">${env.SONAR_LINK}</a></p>
                     <p>Check logs at: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>""",
             attachmentsPattern: 'trivy-report.txt',
             attachLog: true,
