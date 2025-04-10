@@ -38,7 +38,7 @@ pipeline {
                     '''
                 }
             }
-        
+           }
         
         stage("Cloning Django Notes App") {
             steps {
