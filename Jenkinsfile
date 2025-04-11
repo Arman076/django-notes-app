@@ -7,7 +7,7 @@ pipeline {
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        SCANNER_HOME = tool 'sonar-scanner'
+        SCANNER_HOME = '/opt/sonar-scanner'
     }
 
     stages {
