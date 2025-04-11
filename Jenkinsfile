@@ -7,7 +7,7 @@ pipeline {
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-        SCANNER_HOME = '/opt/sonar-scanner'
+      
     }
 
     stages {
@@ -25,19 +25,7 @@ pipeline {
             }
         }
 
-        stage("Sonarqube Analysis") {
-            steps {
-                withSonarQubeEnv('sonarserver') {
-                    withCredentials([string(credentialsId: 'django-sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh '''${SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectKey=django-notes-app \
-                            -Dsonar.projectName="Django Notes App" \
-                            -Dsonar.sources=. \
-                            -Dsonar.login=$SONAR_TOKEN'''
-                    }
-                }
-            }
-        }
+        
 
         stage("Cloning Django Notes App") {
             steps {
@@ -164,7 +152,7 @@ pipeline {
                         <hr>
                         <h3>📊 SonarQube Analysis</h3>
                         <p>Code quality analysis completed via SonarQube for <strong>Django Notes App</strong>.</p>
-                        <p>Visit SonarQube Dashboard: <a href="http://<YOUR-SONARQUBE-IP>:9000/dashboard?id=django-notes-app">SonarQube Report</a></p>
+                        
                     """,
                     attachmentsPattern: 'trivy-report.txt',
                     attachLog: true,
