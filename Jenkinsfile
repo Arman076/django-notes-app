@@ -59,7 +59,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Running Trivy vulnerability scan..."
-                trivy image --severity CRITICAL,HIGH devil678/django-notes-app:latest > trivy-report.txt
+                trivy image --severity CRITICAL,HIGH devil678/django-notes-app:latest
                 '''
             }
         }
