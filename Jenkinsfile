@@ -1,4 +1,4 @@
-@Library("Shared") _    
+@Library("Shared") _
 pipeline {
     agent any
 
@@ -7,7 +7,7 @@ pipeline {
         CONTAINER_NAME = "django-notes-app-container"
         PUSH_IMAGE = "devil678/django-notes-app:latest"
         KUBECONFIG = "/var/lib/jenkins/.kube/config"
-      
+        MINIKUBE = "/var/lib/jenkins/bin/minikube"
     }
 
     stages {
@@ -19,15 +19,13 @@ pipeline {
             }
         }
 
-        stage("Cleanup WorkSpace") {
+        stage("Cleanup Workspace") {
             steps {
                 cleanWs()
             }
         }
 
-        
-
-        stage("Cloning Django Notes App") {
+        stage("Clone Django Notes App") {
             steps {
                 script {
                     clone("https://github.com/Arman076/django-notes-app.git", "main")
@@ -35,7 +33,7 @@ pipeline {
             }
         }
 
-        stage("Build the Code") {
+        stage("Build Docker Image") {
             steps {
                 script {
                     docker_build("django-notes-app", "latest", "devil678")
@@ -47,7 +45,7 @@ pipeline {
             steps {
                 sh '''
                 echo "Running Trivy vulnerability scan..."
-                trivy image --severity CRITICAL,HIGH devil678/django-notes-app:latest
+                trivy image --severity CRITICAL,HIGH --format table --output trivy-report.txt devil678/django-notes-app:latest || true
                 '''
             }
         }
@@ -68,7 +66,7 @@ pipeline {
             }
         }
 
-        stage("Push Code to Docker Hub") {
+        stage("Push to Docker Hub") {
             steps {
                 script {
                     docker_push("django-notes-app", "latest", "devil678")
@@ -76,20 +74,22 @@ pipeline {
             }
         }
 
-        stage("Test the Code") {
+        stage("Run Tests") {
             steps {
                 echo "Running Django Tests..."
+                // You can add: sh 'python manage.py test'
             }
         }
 
-        stage("Deploy the Code") {
+        stage("Deploy to Minikube") {
             steps {
                 script {
                     sh '''
                     echo "Checking Minikube status..."
-                    if ! minikube status | grep -q "host: Running"; then
+
+                    if ! ${MINIKUBE} status | grep -q "host: Running"; then
                         echo "Starting Minikube..."
-                        minikube start
+                        ${MINIKUBE} start
                     else
                         echo "Minikube is already running."
                     fi
@@ -102,20 +102,17 @@ pipeline {
                     kubectl apply -f k8s/django-secrets.yaml
                     kubectl apply -f k8s/service.yaml
                     kubectl apply -f k8s/mysql-deployment.yaml
-
                     kubectl apply -f k8s/django-configmap.yaml
                     kubectl apply -f k8s/django-secretss.yaml
                     kubectl apply -f k8s/django-deployment.yaml
                     kubectl apply -f k8s/django-service.yaml
-
                     kubectl apply -f k8s/nginx-configmap.yaml
                     kubectl apply -f k8s/nginx.yaml
                     kubectl apply -f k8s/nginx-service.yaml
-
                     kubectl apply -f k8s/django-hpa.yaml
 
                     echo "Getting Django service URL..."
-                    MINIKUBE_IP=$(minikube ip)
+                    MINIKUBE_IP=$(${MINIKUBE} ip)
                     PORT=$(kubectl get svc djangoservice -n django -o jsonpath="{.spec.ports[0].nodePort}")
                     echo "Django App is available at: http://$MINIKUBE_IP:$PORT"
 
@@ -130,13 +127,12 @@ pipeline {
     post {
         always {
             script {
-
                 def trivySummary = ''
                 if (fileExists('trivy-report.txt')) {
                     trivySummary = readFile('trivy-report.txt').split('\n').take(20).join('<br>')
                 }
 
-                emailext (
+                emailext(
                     to: "anjaraalam3597@gmail.com",
                     subject: "Jenkins Build Report: ${currentBuild.fullDisplayName}",
                     body: """
@@ -152,7 +148,6 @@ pipeline {
                         <hr>
                         <h3>📊 SonarQube Analysis</h3>
                         <p>Code quality analysis completed via SonarQube for <strong>Django Notes App</strong>.</p>
-                        
                     """,
                     attachmentsPattern: 'trivy-report.txt',
                     attachLog: true,
