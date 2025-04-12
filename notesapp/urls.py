@@ -23,15 +23,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html')),
 ]"""
 #ner after suggetsion 
-from django.urls import path
-from prometheus_client import generate_latest, REGISTRY
-from prometheus_client.exposition import basic_auth_handler
-from .views import *  # Your existing views
-
-# Prometheus metrics view
-def prometheus_metrics(request):
-    # This will return the metrics as a response in the Prometheus format
-    return HttpResponse(generate_latest(REGISTRY), content_type="text/plain; charset=utf-8")
+from django.urls import path, include
 
 urlpatterns = [
     path('', getRoutes, name="routes"),
@@ -40,6 +32,7 @@ urlpatterns = [
     path('notes/<str:pk>/delete/', deleteNote, name="delete-note"),
     path('notes/create/', createNote, name="create-note"),
     path('notes/<str:pk>/', getNote, name="note"),
-    # Add the Prometheus metrics endpoint
-    path('metrics/', prometheus_metrics, name="prometheus-metrics"),
+
+    # Prometheus metrics endpoint from django-prometheus
+    path('', include('django_prometheus.urls')),
 ]
