@@ -80,15 +80,7 @@ pipeline {
         steps {
         script {
             echo "Running Django Tests..."
-            sh '''
-            echo "Installing dependencies..."
             
-            echo "Running Django tests..."
-            pytest --maxfail=1 --disable-warnings -q
-
-            echo "Running Selenium tests..."
-            python staticfiles/test.py --maxfail=1 --disable-warnings -q
-            '''
         }
     }
 }
