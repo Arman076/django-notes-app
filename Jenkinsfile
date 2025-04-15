@@ -82,9 +82,7 @@ pipeline {
             echo "Running Django Tests..."
             sh '''
             echo "Installing dependencies..."
-            pip install -r requirements.txt
-            pip install pytest pytest-django selenium
-
+            
             echo "Running Django tests..."
             pytest --maxfail=1 --disable-warnings -q
 
