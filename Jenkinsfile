@@ -77,11 +77,23 @@ pipeline {
         }
 
         stage("Test the Code") {
-            steps {
-                echo "Running Django Tests..."
-                // Add test scripts here later
-            }
+        steps {
+        script {
+            echo "Running Django Tests..."
+            sh '''
+            echo "Installing dependencies..."
+            pip install -r requirements.txt
+            pip install pytest pytest-django selenium
+
+            echo "Running Django tests..."
+            pytest --maxfail=1 --disable-warnings -q
+
+            echo "Running Selenium tests..."
+            python staticfiles/test.py --maxfail=1 --disable-warnings -q
+            '''
         }
+    }
+}
 
         stage("Deploy the Code") {
             steps {
